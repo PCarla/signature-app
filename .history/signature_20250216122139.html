@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Page</title>
+</head>
+<body>
+    <h1>Signature Page</h1>
+    <form id="signature-form" action="/save_signature" method="post">
+        <label for="signature">Signature:</label>
+        <textarea id="signature" name="signature" rows="10" cols="30"></textarea>
+        <button type="submit">Save Signature</button>
+    </form>
+    <script>
+        document.getElementById('signature-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const signature = document.getElementById('signature').value;
+            fetch('/save_signature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ signature: signature })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    alert('Signature saved successfully!');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unterschrift erfassen</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bitte unterschreiben</h1>
+    <canvas id="signature-pad" width="400" height="200"></canvas>
+    <button onclick="clearSignature()">Löschen</button>
+    <button onclick="saveSignature()">Speichern</button>
+    <script>
+        const canvas = document.getElementById("signature-pad");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+        // Zeichnen auf dem Canvas
+        canvas.addEventListener("mousedown", () => drawing = true);
+        canvas.addEventListener("mouseup", () => drawing = false);
+        canvas.addEventListener("mousemove", draw);
+        function draw(event) {
+            if (!drawing) return;
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+        }
+        // Canvas löschen
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        // Signatur speichern
+        function saveSignature() {
+            const dataURL = canvas.toDataURL("image/png"); // Base64-codiertes PNG
+            fetch("http://127.0.0.1:5000/save_signature", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ signature: dataURL }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    alert("Unterschrift erfolgreich gespeichert!");
+                } else {
+                    alert("Fehler beim Speichern der Unterschrift: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ein Fehler ist aufgetreten.");
+            });
+        }
+    </script>
+</body>
+</html>

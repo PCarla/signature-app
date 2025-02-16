@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signature Capture</title>
+    <style>
+        #signature-pad {
+            border: 1px solid #000;
+            width: 400px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Signature Capture</h1>
+    <canvas id="signature-pad"></canvas>
+    <button id="clear">Clear</button>
+    <button id="save">Save</button>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas);
+        document.getElementById('clear').addEventListener('click', () => {
+            signaturePad.clear();
+        });
+        document.getElementById('save').addEventListener('click', () => {
+            if (signaturePad.isEmpty()) {
+                alert('Please provide a signature first.');
+                return;
+            }
+            const dataURL = signaturePad.toDataURL();
+            // Send POST request to the Flask server at http://127.0.0.1:5000/save_signature
+            fetch('http://127.0.0.1:5000/save_signature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ signature: dataURL })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    alert('Signature saved successfully!');
+                } else {
+                    alert('Error saving signature: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving signature');
+            });
+        });
+    </script>
+</body>
+</html>

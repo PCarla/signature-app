@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unterschrift erfassen</title>
+    <style>
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <h1>Bitte unterschreiben</h1>
+    <canvas id="signature-pad" width="400" height="200"></canvas>
+    <button onclick="clearSignature()">Löschen</button>
+    <button onclick="saveSignature()">Speichern</button>
+
+    <script>
+        const canvas = document.getElementById("signature-pad");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+
+        canvas.addEventListener("mousedown", () => drawing = true);
+        canvas.addEventListener("mouseup", () => drawing = false);
+        canvas.addEventListener("mousemove", draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveSignature() {
+            const dataURL = canvas.toDataURL();
+            fetch("https://mein-backend.com/save_signature", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ signature: dataURL }),
+            });
+            alert("Unterschrift gespeichert!");
+        }
+    </script>
+</body>
+</html>
