@@ -50,7 +50,7 @@ def create_app():
             return jsonify({"error": str(e)}), 500
     return app
 app = create_app()
-if __name__ == "__main__":
+  if __name__ == "__main__":
       print("Starting Flask server...")
       from waitress import serve
       serve(app, host="0.0.0.0", port=8080)
